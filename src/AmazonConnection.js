@@ -12,12 +12,21 @@ module.exports = (awsConfig) => {
     }
 
     get credentials () {
-      const credentials = {
-        accessKeyId: get(this.awsConfig, 'credentials.accessKeyId', false),
-        secretAccessKey: get(this.awsConfig, 'credentials.secretAccessKey', false),
+      let credentials = {
+        accessKeyId: get(this.awsConfig, 'credentials.accessKeyId'),
+        secretAccessKey: get(this.awsConfig, 'credentials.secretAccessKey'),
         sessionToken: get(this.awsConfig, 'credentials.sessionToken')
       }
-
+      
+      // if config wasn't passed then fallback to access keys in process.env
+      if (!credentials.accessKeyId && !credentials.secretAccessKey) {
+        credentials = {
+          accessKeyId: process.env.AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY,
+          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET_KEY,
+          sessionToken: process.env.AWS_SESSION_TOKEN
+        }
+      }
+      
       if (!credentials.accessKeyId || !credentials.secretAccessKey) {
         throw new Error('Missing AWS credentials')
       }
