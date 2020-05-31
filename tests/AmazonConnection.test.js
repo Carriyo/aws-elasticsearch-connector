@@ -5,7 +5,8 @@ const assert = require('assert')
 const AWS = require('aws-sdk')
 const { URL } = require('url')
 
-const AmazonConnection = require('../src/AmazonConnection')
+const amazonConnectionFactory = require('../src/AmazonConnection')
+const AmazonConnection = amazonConnectionFactory()
 
 describe('AmazonConnection', function () {
   it('extends Connection', function () {
@@ -15,10 +16,10 @@ describe('AmazonConnection', function () {
   describe('.awsConfig', function () {
     it('reads from options.awsConfig', function () {
       const awsConfig = { foo: 'bar' }
+      const AnotherAmazonConnection = amazonConnectionFactory(awsConfig)
 
-      const connector = new AmazonConnection({
-        url: new URL('https://foo.us-east-1.es.amazonaws.com'),
-        awsConfig
+      const connector = new AnotherAmazonConnection({
+        url: new URL('https://foo.us-east-1.es.amazonaws.com')
       })
 
       assert.deepStrictEqual(connector.awsConfig, awsConfig)
@@ -50,9 +51,9 @@ describe('AmazonConnection', function () {
         sessionToken: 'baz1'
       }
 
-      const connector = new AmazonConnection({
-        url: new URL('https://foo.us-east-1.es.amazonaws.com'),
-        awsConfig: { credentials }
+      const AnotherAmazonConnection = amazonConnectionFactory({ credentials })
+      const connector = new AnotherAmazonConnection({
+        url: new URL('https://foo.us-east-1.es.amazonaws.com')
       })
 
       assert.deepStrictEqual(connector.credentials, credentials)
@@ -122,15 +123,15 @@ describe('AmazonConnection', function () {
   })
 
   describe('buildRequestObject()', function () {
-    const connector = new AmazonConnection({
-      url: new URL('https://foo.us-east-1.es.amazonaws.com'),
-      awsConfig: {
-        credentials: {
-          accessKeyId: 'foo',
-          secretAccessKey: 'bar',
-          sessionToken: 'baz'
-        }
+    const AnotherAmazonConnection = amazonConnectionFactory({
+      credentials: {
+        accessKeyId: 'foo',
+        secretAccessKey: 'bar',
+        sessionToken: 'baz'
       }
+    })
+    const connector = new AnotherAmazonConnection({
+      url: new URL('https://foo.us-east-1.es.amazonaws.com')
     })
 
     it('sets the Host header without the port appended', function () {

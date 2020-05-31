@@ -3,7 +3,6 @@ const aws4 = require('aws4')
 const AWS = require('aws-sdk')
 const get = require('lodash.get')
 
-
 module.exports = (awsConfig) => {
   class AmazonConnection extends Connection {
     constructor (options) {
@@ -17,7 +16,7 @@ module.exports = (awsConfig) => {
         secretAccessKey: get(this.awsConfig, 'credentials.secretAccessKey'),
         sessionToken: get(this.awsConfig, 'credentials.sessionToken')
       }
-      
+
       // if config wasn't passed then fallback to access keys in process.env
       if (!credentials.accessKeyId && !credentials.secretAccessKey) {
         credentials = {
@@ -26,7 +25,7 @@ module.exports = (awsConfig) => {
           sessionToken: process.env.AWS_SESSION_TOKEN
         }
       }
-      
+
       if (!credentials.accessKeyId || !credentials.secretAccessKey) {
         throw new Error('Missing AWS credentials')
       }
